@@ -47,7 +47,12 @@ bot.on('callback_query:data', async (ctx) => {
   if (data === 'back_to_catalog') return catalogHandler(ctx);
   if (data.startsWith('product_')) return showProductHandler(ctx, data.replace('product_', ''));
   if (data.startsWith('buy_')) return buyHandler(ctx, data.replace('buy_', ''));
-  if (data.startsWith('pay_')) return payHandler(ctx, data.replace('pay_', ''));
+  if (data.startsWith('pay_')) {
+    const parts = data.replace('pay_', '').split('_');
+    const productId = parts[0];
+    const channel = parts.slice(1).join('_');
+    return payHandler(ctx, productId, channel);
+  }
   if (data === 'myorders') return ordersHandler(ctx);
   if (data.startsWith('checkstatus_')) return checkStatusHandler(ctx, data.replace('checkstatus_', ''));
   if (data.startsWith('repay_')) return repayHandler(ctx, data.replace('repay_', ''));

@@ -10,37 +10,25 @@
         <tr>
           <th>Order ID</th>
           <th>Pembeli</th>
-          <th>Username</th>
           <th>Produk</th>
-          <th>Durasi</th>
           <th>Total</th>
+          <th>Bayar Via</th>
           <th>Status</th>
-          <th>Membership</th>
           <th>Expire</th>
         </tr>
       </thead>
       <tbody>
         <% if (orders.length === 0) { %>
-        <tr><td colspan="9" style="text-align:center;color:var(--text-secondary)">Belum ada pesanan</td></tr>
+        <tr><td colspan="7" style="text-align:center;color:var(--text-secondary)">Belum ada pesanan</td></tr>
         <% } else { %>
         <% orders.forEach(order => { %>
         <tr>
           <td><code><%= order.orderId %></code></td>
-          <td><%= order.user.firstName %> <%= order.user.lastName || '' %></td>
-          <td>@<%= order.user.username || '-' %></td>
+          <td><%= order.user.firstName %><br><small style="color:var(--text-secondary)">@<%= order.user.username || '-' %></small></td>
           <td><%= order.items.map(i => i.product.name).join(', ') %></td>
-          <td><%= order.durationDays %> hari</td>
           <td>Rp<%= order.totalAmount.toLocaleString('id-ID') %></td>
+          <td><span class="status-badge status-paid"><%= order.paymentType || '-' %></span></td>
           <td><span class="status-badge status-<%= order.status %>"><%= order.status.toUpperCase() %></span></td>
-          <td>
-            <% if (order.membershipStatus === 'active') { %>
-              <span class="status-badge status-delivered">Aktif</span>
-            <% } else if (order.membershipStatus === 'expired') { %>
-              <span class="status-badge status-failed">Expired</span>
-            <% } else { %>
-              <span class="status-badge status-<%= order.status %>"><%= order.status.toUpperCase() %></span>
-            <% } %>
-          </td>
           <td style="font-size:12px"><%= order.expiresAt.toLocaleDateString('id-ID') %></td>
         </tr>
         <% }) %>

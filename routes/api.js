@@ -7,8 +7,7 @@ const { bot } = require('../bot');
 router.post('/midtrans/notification', async (req, res) => {
   console.log('[WEBHOOK] Received:', JSON.stringify(req.body));
   try {
-    const notification = req.body;
-    const result = await verifyNotification(notification);
+    const result = await verifyNotification(req.body);
 
     if (!result.success) {
       console.error('[WEBHOOK] Verification failed:', result.error);
@@ -39,7 +38,7 @@ router.post('/midtrans/notification', async (req, res) => {
 
     await prisma.order.update({
       where: { id: order.id },
-      data: { status: newStatus, paymentMethod: paymentType },
+      data: { status: newStatus, paymentType },
     });
 
     if (newStatus === 'paid') {
@@ -58,7 +57,6 @@ async function deliverOrder(order) {
     let inviteLink = null;
     const product = order.items[0]?.product;
 
-    // Create invite link
     if (product?.groupId) {
       try {
         const link = await bot.api.createChatInviteLink(product.groupId, {
@@ -73,50 +71,43 @@ async function deliverOrder(order) {
       }
     }
 
-    // Update order
     await prisma.order.update({
       where: { id: order.id },
       data: { status: 'delivered', inviteLink },
     });
 
-    // Send to user
     const productName = product?.name || 'Produk';
     const durationDays = product?.durationDays || 0;
-    let message = `✅ *Pesanan Berhasil!*\n\n` +
-      `📦 Produk: *${productName}*\n` +
-      `⏳ Durasi: *${durationDays} hari*\n` +
-      `📅 Berlaku hingga: *${new Date(Date.now() + durationDays * 86400000).toLocaleDateString('id-ID')}*`;
+    let message = `✅ *Pesanan Berhasil!*` +
+      `\n\n📦 *${productName}*` +
+      `\n⏳ Durasi: *${durationDays} hari*` +
+      `\n📅 Berlaku hingga: *${new Date(Date.now() + durationDays * 86400000).toLocaleDateString('id-ID')}*`;
 
     if (inviteLink) {
-      message += `\n\n🔗 *Link Grup Telegram:*\n${inviteLink}` +
+      message += `\n\n🔗 *Link Grup:*\n${inviteLink}` +
         `\n\n⚠️ *PENTING:*` +
-        `\n• Link ini hanya untuk *1 orang*` +
-        `\n• Link *expired dalam 7 hari*` +
-        `\n• Jangan share ke orang lain`;
-    } else {
-      message += `\n\n⚠️ Link undangan belum dikonfigurasi. Hubungi admin.`;
+        `\n• Link Grup *1 orang*` +
+        `\n• Link Grup *Expired *7 hari*` +
+        `\n• Jangan share`;
     }
 
     await bot.api.sendMessage(String(order.user.telegramId), message, { parse_mode: 'Markdown' });
     console.log('[DELIVER] Sent to user:', order.user.telegramId);
 
-    // Send report to admin group
+    // Report to admin group
     const reportChatId = process.env.STORE_REPORT_ID;
     if (reportChatId) {
-      const report = [
-        '*LAPORAN TRANSAKSI*', '',
-        `👤 Pembeli: *@${order.user.username || '-'}*`,
-        `📦 Produk: *${productName}*`,
-        `💰 Harga: *Rp${order.totalAmount.toLocaleString('id-ID')}*`,
-        `⏳ Durasi: *${durationDays} hari*`,
-        `📅 Expire: *${new Date(Date.now() + durationDays * 86400000).toLocaleDateString('id-ID')}*`,
-        `🕐 Waktu: *${new Date().toLocaleString('id-ID')}*`,
-        `📋 Order: \`${order.orderId}\``,
-      ].join('\n');
+      const report = `📊 *LAPORAN TRANSAKSI*` +
+        `\n\n👤 *@${order.user.username || '-'}*` +
+        `\n📦 ${productName}` +
+        `\n💰 Rp${order.totalAmount.toLocaleString('id-ID')}` +
+        `\n⏳ ${durationDays} hari` +
+        `\n📅 ${new Date().toLocaleString('id-ID')}` +
+        `\n📋 \`${order.orderId}\``;
 
       try {
         await bot.api.sendMessage(reportChatId, report, { parse_mode: 'Markdown' });
-        console.log('[DELIVER] Report sent to admin group');
+        console.log('[DELIVER] Report sent');
       } catch (reportError) {
         console.error('[DELIVER] Failed to send report:', reportError.message);
       }

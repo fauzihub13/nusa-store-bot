@@ -40,9 +40,10 @@ model Order {
   user            User        @relation(fields: [userId], references: [id])
   totalAmount     Int
   status          String      @default("pending")
-  paymentMethod   String?
   orderId         String?     @unique
-  qrCodeUrl       String?     @db.Text
+  snapToken       String?
+  snapUrl         String?
+  paymentType     String?
   inviteLink      String?     @db.Text
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt

@@ -12,11 +12,11 @@ async function buyHandler(ctx, productId) {
   if (!user) return ctx.reply('Silakan /start terlebih dahulu.');
 
   const text = [
-    '💳 *Konfirmasi Pembelian:*', '',
+    '🛒 *Konfirmasi Pembelian*', '',
     `📦 *${product.name}*`,
     `⏳ Durasi: *${product.durationDays} hari*`,
     `💰 Harga: *Rp${product.price.toLocaleString('id-ID')}*`, '',
-    'Klik "Bayar Sekarang" untuk melanjutkan.',
+    'Klik "Bayar Sekarang" untuk membuat tagihan.',
   ].join('\n');
 
   const keyboard = {
@@ -55,37 +55,38 @@ async function payHandler(ctx, productId) {
     },
   });
 
-  const midtransResult = await createMidtransTransaction({
+  const result = await createMidtransTransaction({
     orderId, amount: product.price,
     customerName: ctx.from.first_name,
     customerEmail: `${ctx.from.username || 'user'}@t.me`,
   });
 
-  if (!midtransResult.success) return ctx.reply('❌ Gagal membuat transaksi.');
-
-  await prisma.order.update({ where: { id: order.id }, data: { qrCodeUrl: midtransResult.qrCodeUrl } });
-
-  const caption = [
-    '✅ *Transaksi Dibuat!*', '',
-    `📋 Order ID: \`${orderId}\``,
-    `📦 Produk: *${product.name}*`,
-    `⏳ Durasi: *${product.durationDays} hari*`,
-    `💰 Total: *Rp${product.price.toLocaleString('id-ID')}*`, '',
-    'Scan QR di atas untuk membayar.',
-    'Link grup Telegram akan dikirim setelah pembayaran berhasil.',
-  ].join('\n');
-
-  if (midtransResult.qrCodeUrl) {
-    return ctx.replyWithPhoto(midtransResult.qrCodeUrl, {
-      caption: caption + `\n\n🔗 [Buka Link QR](${midtransResult.qrCodeUrl})`,
-      parse_mode: 'Markdown',
-      reply_markup: { inline_keyboard: [[{ text: '📦 Cek Status', callback_data: 'myorders' }], [HOME_BUTTON]] },
-    });
+  if (!result.success) {
+    return ctx.reply(`❌ Gagal membuat tagihan: ${result.error}`);
   }
 
-  return ctx.reply(caption, {
+  await prisma.order.update({
+    where: { id: order.id },
+    data: { snapToken: result.token, snapUrl: result.redirectUrl },
+  });
+
+  const text = [
+    '✅ *Tagihan Dibuat*', '',
+    `📋 ID: \`${orderId}\``,
+    `📦 ${product.name} (${product.durationDays} hari)`,
+    `💰 Rp${product.price.toLocaleString('id-ID')}`, '',
+    'Klik tombol di bawah untuk memilih metode pembayaran (QRIS, VA, E-Wallet).',
+  ].join('\n');
+
+  return ctx.reply(text, {
     parse_mode: 'Markdown',
-    reply_markup: { inline_keyboard: [[{ text: '📦 Cek Status', callback_data: 'myorders' }], [HOME_BUTTON]] },
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: '💳 Bayar Sekarang', url: result.redirectUrl }],
+        [{ text: '📦 Cek Status', callback_data: 'myorders' }],
+        [HOME_BUTTON],
+      ],
+    },
   });
 }
 

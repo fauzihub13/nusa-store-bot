@@ -57,9 +57,11 @@ async function deliverOrder(order) {
     let inviteLink = null;
     const product = order.items[0]?.product;
 
-    if (product?.groupId) {
+    // Determine group ID: product.groupId or fallback to env GROUP_ID
+    const groupId = product?.groupId || process.env.GROUP_ID;
+    if (groupId) {
       try {
-        const link = await bot.api.createChatInviteLink(product.groupId, {
+        const link = await bot.api.createChatInviteLink(groupId, {
           member_limit: 1,
           expire_date: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60),
           name: `Order ${order.orderId}`,

@@ -1,0 +1,50 @@
+<%- include('layout') %>
+<div class="page-header">
+  <h1>Stok Digital</h1>
+</div>
+
+<div class="card">
+  <h2>Tambah Stok</h2>
+  <form method="POST" action="/admin/stock/add">
+    <div class="form-group">
+      <label>Produk</label>
+      <select name="productId" required>
+        <option value="">Pilih Produk</option>
+        <% products.forEach(product => { %>
+        <option value="<%= product.id %>"><%= product.name %> (Stok: <%= product.stock.length %>)</option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Kode/Voucher (satu per baris)</label>
+      <textarea name="codes" rows="6" placeholder="ABC-123-XYZ&#10;DEF-456-UVW"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Tambah Stok</button>
+  </form>
+</div>
+
+<% products.forEach(product => { %>
+<div class="card">
+  <h2><%= product.name %> <span style="font-weight:400;font-size:12px;color:var(--text-secondary)">(<%= product.stock.filter(s => !s.isUsed).length %> tersedia)</span></h2>
+  <% if (product.stock.length > 0) { %>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Kode</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <% product.stock.forEach(stock => { %>
+        <tr>
+          <td><code><%= stock.content %></code></td>
+          <td><span class="status-badge <%= stock.isUsed ? 'status-failed' : 'status-delivered' %>"><%= stock.isUsed ? 'Terpakai' : 'Tersedia' %></span></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } else { %>
+  <p class="text-muted">Belum ada stok</p>
+  <% } %>
+</div>
+<% }) %>
+<%- include('partials/footer') %>

@@ -1,0 +1,42 @@
+<%- include('layout') %>
+<div class="page-header">
+  <h1><%= product ? 'Edit Produk' : 'Tambah Produk' %></h1>
+  <a href="/admin/products" class="btn btn-ghost">Kembali</a>
+</div>
+
+<div class="card" style="max-width:600px">
+  <form method="POST" action="<%= product ? `/admin/products/${product.id}` : '/admin/products' %>">
+    <div class="form-group">
+      <label>Nama Produk</label>
+      <input type="text" name="name" value="<%= product ? product.name : '' %>" required placeholder="contoh: Nusa Pro 7 Hari">
+    </div>
+    <div class="form-group">
+      <label>Deskripsi</label>
+      <textarea name="description" rows="3" placeholder="Deskripsi produk"><%= product ? product.description || '' : '' %></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Harga (Rupiah)</label>
+        <input type="number" name="price" value="<%= product ? product.price : '' %>" required placeholder="25000">
+      </div>
+      <div class="form-group">
+        <label>Durasi (Hari)</label>
+        <input type="number" name="durationDays" value="<%= product ? product.durationDays : '' %>" required placeholder="7">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Telegram Group ID</label>
+      <input type="text" name="groupId" value="<%= product ? product.groupId || '' : '' %>" placeholder="-1001234567890">
+      <small style="color:var(--text-secondary);font-size:11px">ID grup Telegram untuk generate link undangan. Kosongkan jika tidak perlu.</small>
+    </div>
+    <% if (product) { %>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0">
+        <input type="checkbox" name="isActive" <%= product.isActive ? 'checked' : '' %> style="width:auto"> Aktif
+      </label>
+    </div>
+    <% } %>
+    <button type="submit" class="btn btn-primary"><%= product ? 'Update' : 'Tambah' %></button>
+  </form>
+</div>
+<%- include('partials/footer') %>

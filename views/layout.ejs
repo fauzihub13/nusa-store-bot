@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NusaStore - Admin</title>
+  <link rel="stylesheet" href="/public/css/style.css">
+</head>
+<body>
+  <div class="mobile-header">
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+    <h2>NusaStore</h2>
+    <div></div>
+  </div>
+  <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <div class="admin-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+        <h2>NusaStore</h2>
+        <small>Admin Panel</small>
+      </div>
+      <nav>
+        <a href="/admin" class="<%= typeof totalProducts !== 'undefined' && typeof totalOrders === 'undefined' ? 'active' : '' %>">&#9632; Dashboard</a>
+        <a href="/admin/products">&#9632; Produk</a>
+        <a href="/admin/orders">&#9632; Pesanan</a>
+        <a href="/admin/users">&#9632; Users</a>
+        <a href="/admin/logout" class="logout">&#9632; Logout</a>
+      </nav>
+    </aside>
+    <main class="content">
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('open');
+}
+</script>

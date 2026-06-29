@@ -1,0 +1,57 @@
+<%- include('layout') %>
+<div class="page-header">
+  <h1>Kategori</h1>
+</div>
+
+<div class="card">
+  <h2>Tambah Kategori</h2>
+  <form method="POST" action="/admin/categories" style="display:flex;gap:10px;align-items:flex-end">
+    <div class="form-group" style="width:70px">
+      <label>Emoji</label>
+      <input type="text" name="emoji" value="&#128230;" maxlength="2">
+    </div>
+    <div class="form-group" style="flex:1">
+      <label>Nama</label>
+      <input type="text" name="name" required placeholder="contoh: Software, Game, Voucher">
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-bottom:14px">Tambah</button>
+  </form>
+</div>
+
+<div class="card">
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Emoji</th>
+          <th>Nama</th>
+          <th>Produk</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (categories.length === 0) { %>
+        <tr><td colspan="4" style="text-align:center;color:var(--text-secondary)">Belum ada kategori</td></tr>
+        <% } else { %>
+        <% categories.forEach(cat => { %>
+        <tr>
+          <td><%= cat.emoji %></td>
+          <td><strong><%= cat.name %></strong></td>
+          <td><%= cat._count.products %></td>
+          <td>
+            <% if (cat._count.products === 0) { %>
+            <form method="POST" action="/admin/categories/<%= cat.id %>/delete" style="display:inline" onsubmit="return confirm('Hapus kategori ini?')">
+              <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+            </form>
+            <% } else { %>
+            <span class="text-muted" style="font-size:12px">Ada produk</span>
+            <% } %>
+          </td>
+        </tr>
+        <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<%- include('partials/footer') %>

@@ -1,0 +1,70 @@
+<%- include('layout') %>
+<div class="page-header">
+  <h1>Dashboard</h1>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon blue">&#128230;</div>
+    <div class="stat-info">
+      <h3><%= totalProducts %></h3>
+      <p>Produk Aktif</p>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green">&#128203;</div>
+    <div class="stat-info">
+      <h3><%= totalOrders %></h3>
+      <p>Total Pesanan</p>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon yellow">&#128176;</div>
+    <div class="stat-info">
+      <h3>Rp<%= totalRevenue.toLocaleString('id-ID') %></h3>
+      <p>Revenue</p>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon purple">&#128101;</div>
+    <div class="stat-info">
+      <h3><%= totalUsers %></h3>
+      <p>Users</p>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Pesanan Terbaru</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Pembeli</th>
+          <th>Username</th>
+          <th>Produk</th>
+          <th>Total</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (recentOrders.length === 0) { %>
+        <tr><td colspan="6" style="text-align:center;color:var(--text-secondary)">Belum ada pesanan</td></tr>
+        <% } else { %>
+        <% recentOrders.forEach(order => { %>
+        <tr>
+          <td><code><%= order.orderId %></code></td>
+          <td><%= order.user.firstName %> <%= order.user.lastName || '' %></td>
+          <td>@<%= order.user.username || '-' %></td>
+          <td><%= order.items.map(i => i.product.name).join(', ') %></td>
+          <td>Rp<%= order.totalAmount.toLocaleString('id-ID') %></td>
+          <td><span class="status-badge status-<%= order.status %>"><%= order.status.toUpperCase() %></span></td>
+        </tr>
+        <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<%- include('partials/footer') %>

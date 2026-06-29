@@ -49,6 +49,10 @@ async function main() {
       bot.start({
         onStart: () => console.log('Bot started'),
       });
+
+      // Start cron job
+      const { startCronJob } = require('./lib/cron');
+      startCronJob(bot);
     } else {
       console.log('Bot not started (no valid BOT_TOKEN)');
     }
